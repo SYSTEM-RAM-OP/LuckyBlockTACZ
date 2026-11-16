@@ -1,0 +1,8 @@
+# Minecraft / MCreator
+build/
+run/
+.gradle/
+.idea/
+*.class
+*.log
+src/main/resources/assets/*/textures/block/*_generated.png

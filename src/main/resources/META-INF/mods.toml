@@ -1,0 +1,34 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="luckyblocktacz"
+version="1.0.0"
+displayName="LuckyBlockTACZ"
+displayURL="https://blo-g.us.ci"
+credits="Special thanks to the TACZ development team for their amazing mod."
+authors="SYSTEM-RAM-OP"
+description="A lightweight Lucky Block add-on for TACZ. It's not a Lucky Block add-on mod, so you don't have to include the Lucky Block mod. Break the block to get a random gun from 70+ default TACZ firearms, along with its perfectly matched ammo. Ready to fire, no mismatches!  \u8FD9\u662F\u4E00\u4E2A\u57FA\u4E8E TACZ \u7684\u8F7B\u91CF\u7EA7\u5E78\u8FD0\u65B9\u5757\u9644\u5C5E\u6A21\u7EC4\u3002 \u8FD9\u4E0D\u662F\u4E00\u4E2A\u5E78\u8FD0\u65B9\u5757\u7684\u9644\u52A0\u6A21\u7EC4\uFF0C\u6240\u4EE5\u4F60\u4E0D\u9700\u8981\u5B89\u88C5\u5E78\u8FD0\u65B9\u5757\u6A21\u7EC4\u3002 \u6316\u6389\u65B9\u5757\uFF0C\u5373\u53EF\u968F\u673A\u83B7\u5F97\u4E00\u628A\u5305\u542B 70+ \u79CD\u9ED8\u8BA4\u67AA\u68B0\u7684\u6B66\u5668\uFF0C\u5E76\u4E25\u683C\u9644\u5E26\u76F8\u5339\u914D\u7684\u4E13\u5C5E\u5B50\u5F39\uFF0C\u5F00\u7BB1\u5373\u6218\uFF0C\u7EDD\u4E0D\u914D\u9519\uFF01"
+
+# Start of user code block mod configuration
+# End of user code block mod configuration
+
+[[dependencies.luckyblocktacz]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1]"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.luckyblocktacz]]
+    modId="tacz"
+    mandatory=true
+    versionRange="[0,)"
+    ordering="NONE"
+    side="BOTH"
+
+
+
+# Start of user code block dependencies configuration
+# End of user code block dependencies configuration

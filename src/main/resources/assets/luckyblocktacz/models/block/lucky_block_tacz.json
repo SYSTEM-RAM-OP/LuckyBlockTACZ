@@ -1,0 +1,13 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "luckyblocktacz:block/lucky_block_modern_guns",
+    "up": "luckyblocktacz:block/lucky_block_modern_guns",
+    "north": "luckyblocktacz:block/lucky_block_modern_guns",
+    "east": "luckyblocktacz:block/lucky_block_modern_guns",
+    "south": "luckyblocktacz:block/lucky_block_modern_guns",
+    "west": "luckyblocktacz:block/lucky_block_modern_guns",
+    "particle": "luckyblocktacz:block/lucky_block_modern_guns"
+  },
+  "render_type": "solid"
+}
