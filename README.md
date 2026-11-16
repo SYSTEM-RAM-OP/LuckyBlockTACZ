@@ -84,3 +84,11 @@ To run properly, you must have the following mods installed:
 
 ---
 *Author: SYSTEM-RAM-OP | Feel free to use this mod in your modpack!*
+
+# LuckyBlockTACZ
+
+This mod is licensed under All Rights Reserved.
+
+- You are welcome to include this mod in your modpacks.
+- You CANNOT redistribute the source code as your own work.
+- You CANNOT reupload the compiled .jar file to other websites.
