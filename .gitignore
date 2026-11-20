@@ -1,8 +1,9 @@
-# Minecraft / MCreator
+.gradle/
 build/
 run/
-.gradle/
+.mcreator/
+.eclipse/
 .idea/
 *.class
 *.log
-src/main/resources/assets/*/textures/block/*_generated.png
+guns/
