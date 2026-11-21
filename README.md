@@ -89,6 +89,6 @@ To run properly, you must have the following mods installed:
 
 This mod is licensed under the **MIT License**.
 
-Copyright (c) 2026 SYSTEM-RAM-OP
+Copyright © 2026 SYSTEM-RAM-OP
 
 See [LICENSE](LICENSE) for the full text.
