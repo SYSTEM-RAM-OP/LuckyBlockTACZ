@@ -20,6 +20,12 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.mcreator.luckyblocktacz.init.LuckyblocktaczModTabs;
 import net.mcreator.luckyblocktacz.init.LuckyblocktaczModItems;
 import net.mcreator.luckyblocktacz.init.LuckyblocktaczModBlocks;
+import net.mcreator.luckyblocktacz.loot.AddItemLootModifier;
+
+import com.mojang.serialization.Codec;
+import net.minecraftforge.common.loot.IGlobalLootModifier;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Supplier;
 import java.util.function.Function;
@@ -34,6 +40,11 @@ import java.util.AbstractMap;
 public class LuckyblocktaczMod {
 	public static final Logger LOGGER = LogManager.getLogger(LuckyblocktaczMod.class);
 	public static final String MODID = "luckyblocktacz";
+	public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> GLM = DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
+
+	static {
+		GLM.register("add_item", () -> AddItemLootModifier.CODEC);
+	}
 
 	public LuckyblocktaczMod(FMLJavaModLoadingContext context) {
 		// Start of user code block mod constructor
@@ -43,6 +54,7 @@ public class LuckyblocktaczMod {
 		LuckyblocktaczModBlocks.REGISTRY.register(bus);
 		LuckyblocktaczModItems.REGISTRY.register(bus);
 		LuckyblocktaczModTabs.REGISTRY.register(bus);
+		GLM.register(bus);
 		// Start of user code block mod init
 		// End of user code block mod init
 	}

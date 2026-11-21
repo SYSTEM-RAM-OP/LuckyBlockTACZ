@@ -7,3 +7,6 @@ run/
 *.class
 *.log
 guns/
+elements/
+luckyblocktacz.mcreator
+mcreator.gradle

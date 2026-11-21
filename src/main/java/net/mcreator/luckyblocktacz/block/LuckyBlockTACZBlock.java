@@ -9,8 +9,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootParams;
 
 import net.mcreator.luckyblocktacz.procedures.LuckyBlockDropProcedure;
+
+import java.util.List;
 
 public class LuckyBlockTACZBlock extends Block {
 	public LuckyBlockTACZBlock() {
@@ -20,6 +24,11 @@ public class LuckyBlockTACZBlock extends Block {
 	@Override
 	public int getLightBlock(BlockState state, BlockGetter worldIn, BlockPos pos) {
 		return 15;
+	}
+
+	@Override
+	public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
+		return List.of();
 	}
 
 	@Override

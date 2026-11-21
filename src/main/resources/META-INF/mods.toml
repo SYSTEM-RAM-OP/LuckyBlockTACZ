@@ -1,10 +1,10 @@
 modLoader="javafml"
 loaderVersion="[47,)"
-license="All Rights Reserved"
+license="MIT"
 
 [[mods]]
 modId="luckyblocktacz"
-version="1.0.1"
+version="1.0.2"
 displayName="LuckyBlockTACZ"
 displayURL="https://blo-g.us.ci"
 credits="Special thanks to the TACZ development team for their amazing mod."
