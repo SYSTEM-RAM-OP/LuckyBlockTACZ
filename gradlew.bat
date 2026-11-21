@@ -35,8 +35,6 @@ for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 
 @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
-set "JAVA_HOME=C:\Program Files\Zulu\zulu-17"
-set "GRADLE_USER_HOME=C:\Users\Administrator\.mcreator\gradle"
 
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome
