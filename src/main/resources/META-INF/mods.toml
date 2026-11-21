@@ -24,10 +24,23 @@ description="A lightweight Lucky Block add-on for TACZ. It's not a Lucky Block a
 [[dependencies.luckyblocktacz]]
     modId="tacz"
     mandatory=true
+    versionRange="[1.2.0,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.luckyblocktacz]]
+    modId="lrtactical"
+    mandatory=false
     versionRange="[0,)"
     ordering="NONE"
     side="BOTH"
 
+[[dependencies.luckyblocktacz]]
+    modId="delta_wt"
+    mandatory=false
+    versionRange="[0,)"
+    ordering="NONE"
+    side="BOTH"
 
 
 # Start of user code block dependencies configuration
