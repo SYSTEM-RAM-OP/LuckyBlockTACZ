@@ -72,6 +72,13 @@ jobs:
           loaders: forge
           game-versions: 1.20.1
           java: 17
+          modrinth-dependencies: |
+            SzzJttH8(required)
+            AiwNM9O0(optional)
+            3tYsgtNr(optional)
+          curseforge-dependencies: |
+            1028108(required)
+            1382917(optional)
 
           modrinth-id: J1g7TRaI
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
