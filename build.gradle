@@ -78,7 +78,7 @@ publishing {
         maven(MavenPublication) {
             groupId = 'com.github.SYSTEM-RAM-OP'
             artifactId = 'LuckyBlockTACZ'
-            version = System.getenv('MAVEN_PUBLISH_VERSION') ?: project.version
+            version = System.getenv('MAVEN_PUBLISH_VERSION') ?: System.getenv('VERSION') ?: project.version
             from components.java
         }
     }
@@ -94,4 +94,6 @@ publishing {
     }
 }
 
-apply from: 'mcreator.gradle'
+if (file('mcreator.gradle').exists()) {
+    apply from: 'mcreator.gradle'
+}
