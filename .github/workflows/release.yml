@@ -52,14 +52,6 @@ jobs:
           printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
           printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
 
-      - name: Publish to GitHub Packages
-        env:
-          MAVEN_PUBLISH_URL: https://maven.pkg.github.com/SYSTEM-RAM-OP/LuckyBlockTACZ
-          MAVEN_PUBLISH_VERSION: ${{ steps.refs.outputs.version }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew publish --no-daemon --console=plain
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
