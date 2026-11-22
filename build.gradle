@@ -12,7 +12,7 @@ repositories {
     maven { url = "https://maven.minecraftforge.net/" }
 }
 
-version = '1.0.3'
+version = '1.0.4'
 base.archivesName = "LuckyBlockTACZ"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)

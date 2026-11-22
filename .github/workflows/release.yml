@@ -72,8 +72,6 @@ jobs:
           loaders: forge
           game-versions: 1.20.1
           java: 17
-          dependencies: |
-            tacz(required){modrinth:SzzJttH8}{curseforge:timeless-and-classics-zero}
 
           modrinth-id: J1g7TRaI
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}

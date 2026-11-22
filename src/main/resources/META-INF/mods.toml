@@ -6,7 +6,7 @@ logoFile="logo.png"
 
 [[mods]]
 modId="luckyblocktacz"
-version="1.0.3"
+version="1.0.4"
 displayName="LuckyBlockTACZ"
 displayTest="IGNORE_ALL_VERSION"
 displayURL="https://blo-g.us.ci"
