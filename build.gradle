@@ -73,6 +73,98 @@ jar {
     }
 }
 
+def lootReferenceFile = file('tools/reference-ids.json')
+def lootSourceFile = file('src/main/java/net/mcreator/luckyblocktacz/LuckyBlockLoot.java')
+
+tasks.register('validateLootIds') {
+    group = 'verification'
+    description = 'Checks that every loot id in LuckyBlockLoot.java exists in the installed mods.'
+
+    inputs.file(lootSourceFile)
+    inputs.file(lootReferenceFile)
+
+    onlyIf {
+        lootReferenceFile.exists() && !providers.gradleProperty('skipLootIdValidation').map { it.toBoolean() }.getOrElse(false)
+    }
+
+    doLast {
+        def reference = new groovy.json.JsonSlurper().parse(lootReferenceFile)
+        def source = lootSourceFile.getText('UTF-8')
+        def guns = reference.guns
+        def attachments = reference.attachments as List
+        def lrtactical = reference.lrtactical
+        def deltaMelee = reference.delta_wt_melee as List
+        def problems = []
+
+        def each = { String regex, Closure action ->
+            def matcher = source =~ regex
+            while (matcher.find()) {
+                action(matcher)
+            }
+        }
+
+        def expectedAmmo = { String gunId -> guns[gunId].toString().replaceFirst(/^tacz:/, '') }
+
+        each(/LOOT_TABLE\.add\(gun\("([^"]+)",\s*"([^"]+)"\)\)/) { m ->
+            if (!guns.containsKey(m.group(1))) {
+                problems << "gun '${m.group(1)}' is not in reference-ids.json"
+            } else if (expectedAmmo(m.group(1)) != m.group(2)) {
+                problems << "gun '${m.group(1)}' expects ammo '${expectedAmmo(m.group(1))}' but uses '${m.group(2)}'"
+            }
+        }
+
+        each(/LOOT_TABLE\.add\(gunWithAttachment\("([^"]+)",\s*"([^"]+)",\s*"([^"]+)",\s*\d+\)\)/) { m ->
+            if (!guns.containsKey(m.group(1))) {
+                problems << "gunWithAttachment gun '${m.group(1)}' is not in reference-ids.json"
+            } else if (expectedAmmo(m.group(1)) != m.group(2)) {
+                problems << "gunWithAttachment gun '${m.group(1)}' expects ammo '${expectedAmmo(m.group(1))}' but uses '${m.group(2)}'"
+            }
+            if (!attachments.contains(m.group(3))) {
+                problems << "attachment '${m.group(3)}' is not in reference-ids.json"
+            }
+        }
+
+        each(/LOOT_TABLE\.add\(attachment\("([^"]+)"\)\)/) { m ->
+            if (!attachments.contains(m.group(1))) {
+                problems << "attachment '${m.group(1)}' is not in reference-ids.json"
+            }
+        }
+
+        each(/LOOT_TABLE\.add\(consumable\("([^"]+)",\s*\d+\)\)/) { m ->
+            if (!(lrtactical.consumable as List).contains(m.group(1))) {
+                problems << "consumable '${m.group(1)}' is not in reference-ids.json"
+            }
+        }
+
+        each(/LOOT_TABLE\.add\(lrMelee\("([^"]+)"\)\)/) { m ->
+            if (!(lrtactical.melee as List).contains(m.group(1))) {
+                problems << "lrtactical melee '${m.group(1)}' is not in reference-ids.json"
+            }
+        }
+
+        each(/LOOT_TABLE\.add\(throwable\("([^"]+)"\)\)/) { m ->
+            if (!(lrtactical.throwable as List).contains(m.group(1))) {
+                problems << "throwable '${m.group(1)}' is not in reference-ids.json"
+            }
+        }
+
+        each(/LOOT_TABLE\.add\(deltaMelee\("([^"]+)"\)\)/) { m ->
+            if (!deltaMelee.contains(m.group(1))) {
+                problems << "delta_wt melee '${m.group(1)}' is not in reference-ids.json"
+            }
+        }
+
+        if (!problems.isEmpty()) {
+            throw new GradleException("validateLootIds failed:\n  - " + problems.join("\n  - "))
+        }
+        logger.lifecycle("validateLootIds: OK (guns=${guns.size()}, attachments=${attachments.size()}, consumables=${(lrtactical.consumable as List).size()})")
+    }
+}
+
+tasks.named('check') {
+    dependsOn 'validateLootIds'
+}
+
 publishing {
     publications {
         maven(MavenPublication) {

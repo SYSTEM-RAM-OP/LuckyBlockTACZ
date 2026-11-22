@@ -1,11 +1,14 @@
 modLoader="javafml"
 loaderVersion="[47,)"
 license="MIT"
+issueTrackerURL="https://github.com/SYSTEM-RAM-OP/LuckyBlockTACZ/issues"
+logoFile="logo.png"
 
 [[mods]]
 modId="luckyblocktacz"
 version="1.0.3"
 displayName="LuckyBlockTACZ"
+displayTest="IGNORE_ALL_VERSION"
 displayURL="https://blo-g.us.ci"
 credits="Special thanks to the TACZ development team for their amazing mod."
 authors="SYSTEM-RAM-OP"

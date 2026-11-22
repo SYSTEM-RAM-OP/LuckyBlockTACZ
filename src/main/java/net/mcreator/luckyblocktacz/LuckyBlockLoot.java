@@ -57,9 +57,15 @@ public class LuckyBlockLoot {
         ), null);
     }
 
-    private static LootSet melee(String id) {
+    private static LootSet lrMelee(String id) {
         return new LootSet(List.of(
-            new LootEntry("lrtactical:melee", "{\"MeleeWeaponId\":\"delta_wt:" + id + "\"}", 1, "lrtactical")
+            new LootEntry("lrtactical:melee", "{\"MeleeWeaponId\":\"lrtactical:" + id + "\"}", 1, "lrtactical")
+        ), "lrtactical");
+    }
+
+    private static LootSet flashShield() {
+        return new LootSet(List.of(
+            new LootEntry("lrtactical:flash_shield", null, 1, "lrtactical")
         ), "lrtactical");
     }
 
@@ -91,7 +97,7 @@ public class LuckyBlockLoot {
 
     private static LootSet consumable(String id, int count) {
         return new LootSet(List.of(
-            new LootEntry("lrtactical:" + id, null, count, "lrtactical")
+            new LootEntry("lrtactical:consumable", "{\"ConsumableId\":\"lrtactical:" + id + "\"}", count, "lrtactical")
         ), "lrtactical");
     }
 
@@ -177,6 +183,7 @@ public class LuckyBlockLoot {
         LOOT_TABLE.add(deltaMelee("silencefd"));
         LOOT_TABLE.add(deltaMelee("thieve_sea"));
         LOOT_TABLE.add(deltaMelee("treasure_kn"));
+        LOOT_TABLE.add(throwable("c4"));
         LOOT_TABLE.add(throwable("flash_grenade"));
         LOOT_TABLE.add(throwable("m67"));
         LOOT_TABLE.add(throwable("molotov"));
@@ -184,7 +191,7 @@ public class LuckyBlockLoot {
         LOOT_TABLE.add(throwable("smoke_grenade"));
 
         LOOT_TABLE.add(gunWithAttachment("ak47", "762x39", "scope_pso_1", 90));
-        LOOT_TABLE.add(gunWithAttachment("ak74m", "545x39", "scope_okp7", 90));
+        LOOT_TABLE.add(gunWithAttachment("ak74m", "545x39", "sight_okp7", 90));
         LOOT_TABLE.add(gunWithAttachment("m4a1", "556x45", "scope_acog_ta31", 90));
         LOOT_TABLE.add(gunWithAttachment("hk416d", "556x45", "sight_t2", 90));
         LOOT_TABLE.add(gunWithAttachment("scar_l", "556x45", "scope_elcan_4x", 90));
@@ -362,11 +369,10 @@ public class LuckyBlockLoot {
         LOOT_TABLE.add(consumable("amoxycillin", 2));
         LOOT_TABLE.add(consumable("goldenstar", 2));
         LOOT_TABLE.add(consumable("vaseline", 2));
-        LOOT_TABLE.add(consumable("c4", 1));
-        LOOT_TABLE.add(consumable("dagger", 1));
-        LOOT_TABLE.add(consumable("baseball_bat", 1));
-        LOOT_TABLE.add(consumable("karambit", 1));
-        LOOT_TABLE.add(consumable("flash_shield", 1));
+        LOOT_TABLE.add(lrMelee("dagger"));
+        LOOT_TABLE.add(lrMelee("baseball_bat"));
+        LOOT_TABLE.add(lrMelee("karambit"));
+        LOOT_TABLE.add(flashShield());
     }
 
     public static void dropRandomGunAndAmmo(Level level, BlockPos pos) {
@@ -390,7 +396,7 @@ public class LuckyBlockLoot {
     }
 
     private static void spawnItem(Level level, BlockPos pos, String itemId, String nbtString, int count) {
-        ItemStack stack = new ItemStack(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(new net.minecraft.resources.ResourceLocation(itemId)));
+        ItemStack stack = new ItemStack(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(net.minecraft.resources.ResourceLocation.tryParse(itemId)));
         stack.setCount(count);
         if (nbtString != null && !nbtString.isEmpty()) {
             try {
