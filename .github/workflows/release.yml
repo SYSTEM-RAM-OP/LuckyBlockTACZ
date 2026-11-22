@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -39,20 +40,31 @@ jobs:
       - name: Show build output
         run: ls -l build/libs
 
-      - name: Resolve tag
-        id: tag
+      - name: Resolve tag and version
+        id: refs
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
-            printf 'value=%s\n' "$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+            tag="$GITHUB_REF_NAME"
           else
-            printf 'value=%s\n' "${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+            tag="${{ github.event.inputs.tag }}"
           fi
+          version="${tag#v}"
+          printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
+          printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to GitHub Packages
+        env:
+          MAVEN_PUBLISH_URL: https://maven.pkg.github.com/SYSTEM-RAM-OP/LuckyBlockTACZ
+          MAVEN_PUBLISH_VERSION: ${{ steps.refs.outputs.version }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew publish --no-daemon --console=plain
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.tag.outputs.value }}
-          name: ${{ steps.tag.outputs.value }}
+          tag_name: ${{ steps.refs.outputs.tag }}
+          name: ${{ steps.refs.outputs.tag }}
           body_path: .github/release_body.md
           files: build/libs/LuckyBlockTACZ-*.jar
           draft: false
