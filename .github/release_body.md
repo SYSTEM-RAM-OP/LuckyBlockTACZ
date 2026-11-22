@@ -24,7 +24,7 @@ LuckyBlock TACZ 是一个轻量级的 TaCZ 幸运方块模组，**不依赖原�
 
 ### 前置依赖
 
-- **必须**：TaCZ（`tacz`），版本 1.2.0 及以上
+- **必须**：TaCZ（`tacz`），版本 1.2.0
 - **可选**：绿葡萄战术装备（`lrtactical`）
 - **可选**：Delta WT（`delta_wt`）
 
