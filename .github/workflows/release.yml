@@ -14,7 +14,6 @@ on:
 
 permissions:
   contents: write
-  packages: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -61,3 +60,23 @@ jobs:
           files: build/libs/LuckyBlockTACZ-*.jar
           draft: false
           prerelease: false
+
+      - name: Publish to Modrinth and CurseForge
+        uses: Kir-Antipov/mc-publish@v3.3.2
+        with:
+          files: build/libs/LuckyBlockTACZ-*.jar
+          name: LuckyBlockTACZ ${{ steps.refs.outputs.version }}
+          version: ${{ steps.refs.outputs.version }}
+          version-type: release
+          changelog-file: .github/release_body.md
+          loaders: forge
+          game-versions: 1.20.1
+          java: 17
+          dependencies: |
+            tacz(required){modrinth:SzzJttH8}{curseforge:timeless-and-classics-zero}
+
+          modrinth-id: J1g7TRaI
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          curseforge-id: 1809662
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
