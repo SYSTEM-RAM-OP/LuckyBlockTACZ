@@ -79,6 +79,7 @@ jobs:
           curseforge-dependencies: |
             1028108(required)
             1382917(optional)
+            1273094(optional)
 
           modrinth-id: J1g7TRaI
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
