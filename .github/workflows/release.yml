@@ -61,6 +61,29 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Build on JitPack
+        run: |
+          repo="${{ github.repository }}"
+          version="${{ steps.refs.outputs.version }}"
+          url="https://jitpack.io/com/github/${repo}/${version}/build.log"
+          echo "Triggering JitPack build for ${repo}@${version}"
+          for i in $(seq 1 60); do
+            log="$(curl -sL "$url")"
+            if echo "$log" | grep -q "BUILD SUCCESSFUL"; then
+              echo "JitPack build succeeded"
+              echo "$log" | tail -20
+              exit 0
+            fi
+            if echo "$log" | grep -q "BUILD FAILED"; then
+              echo "JitPack build FAILED"
+              echo "$log" | tail -40
+              exit 1
+            fi
+            echo "Waiting for JitPack build ($i/60)..."
+            sleep 10
+          done
+          echo "WARNING: JitPack build did not finish within 10 minutes"
+
       - name: Publish to Modrinth and CurseForge
         uses: Kir-Antipov/mc-publish@v3.3.2
         with:
