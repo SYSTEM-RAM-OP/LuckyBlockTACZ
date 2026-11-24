@@ -1,4 +1,4 @@
-## LuckyBlock TACZ 1.0.4
+## LuckyBlock TACZ 1.0.5
 
 **Minecraft 1.20.1 · Forge**
 
@@ -6,24 +6,21 @@
 
 LuckyBlock TACZ is a lightweight lucky-block add-on for TaCZ. It does **not** require the original Lucky Block mod. Break the block to roll a random TaCZ firearm together with perfectly matched ammo, ready to fire, no mismatches.
 
-### Fixed
-
-- **Consumables, melee and throwables were dropping as nothing.** The mod registered them as items like `lrtactical:ai2` or `lrtactical:karambit`, but Green Grape Tactical Gear only registers five generic items (`consumable`, `melee`, `throwable`, `flash_shield`, `detonator`) and distinguishes the actual content through NBT. Every consumable, melee and throwable entry therefore produced an empty drop. They now use the correct item plus `ConsumableId` / `MeleeWeaponId` / `ThrowableId` tags.
-- **One attachment in the AK-74M bundle did not exist.** `scope_okp7` is not a valid attachment id (the real one is `sight_okp7`), so that bundle always dropped a gun and ammo without the attachment. Fixed.
-
 ### Added
 
-- **Simplified Chinese localization.** The block and its creative tab now show as 幸运方块 TACZ in a Chinese client.
-- **Mod metadata.** `issueTrackerURL`, a 128×128 `logoFile`, and `displayTest="IGNORE_ALL_VERSION"` are now declared in `mods.toml`, so version mismatches with TaCZ no longer show a red warning.
-- **Loot id validation.** A `validateLootIds` Gradle task now cross-checks every drop id against a generated reference snapshot (`tools/reference-ids.json`) and runs as part of `check`. A typo in a gun, ammo, attachment or consumable id now fails the build instead of silently dropping nothing.
+- **Config file with hot reload.** A new `config/luckyblocktacz-common.toml` exposes every tuning knob: per-tier drop chances, per-rarity weights, how many drop sets per break, scatter radius, jackpot trigger and reward, advancement toggles, and render options. Edit the file and it applies automatically, or run `/lbtacz reload` (op level 2) to refresh the cached loot table without restarting.
+- **Five rarity tiers with two-layer weighting.** Drops are now rolled in two passes — first a tier (1–4), then a rarity inside that tier. Default distribution: Common 44.0%, Uncommon 32.1%, Rare 17.0%, Epic 5.9%, Legendary 1.0%. All tunable in the config. Gun + ammo + attachment bundles still drop together in a single tick, never mismatched.
+- **Multi-block jackpot.** Breaking several lucky blocks within a short window inside a small radius triggers a jackpot that drops 6 top-tier sets. Configurable threshold, radius, window and reward. A server-wide announcement and a level-up sound play when it fires.
+- **Advancements.** Five new achievements — 幸运方块 TACZ (root), First Gun, First Epic, Jackpot and Collector (break 100 blocks) — fully localized in both English and Chinese.
+- **Block-entity renderer.** The block now hosts a block entity that renders a slowly spinning, gently bobbing lucky-block item floating in the middle of the block, purely client-side.
 
 ### Improved
 
-- **Reworked surface shrine.** The generated structure is now a 5×3×5 stone-brick platform with four corner pillars, the lucky block in the centre and a dungeon loot chest beside it, instead of a single floating block.
+- Empty-drop protection: every weighted pool falls back gracefully (re-normalize, then skip to the next non-empty rarity bucket) instead of dropping nothing or throwing.
 
-### Carried over from 1.0.3
+### Carried over from 1.0.4
 
-70 guns with matched ammo, 117 individual attachments, 50 gun + ammo + attachment bundles, consumables with Green Grape Tactical Gear, the 11 Delta WT knives, underground ore generation (Y 60–120), ~24 chest loot tables at 10% chance, and a 9-dirt crafting recipe.
+70 guns with matched ammo, 117 individual attachments, 50 gun + ammo + attachment bundles, consumables with Green Grape Tactical Gear, the 11 Delta WT knives, underground ore generation (Y 60–120), ~24 chest loot tables at 10% chance, a 9-dirt crafting recipe, Simplified Chinese localization, and the reworked stone-brick shrine structure.
 
 ### Requirements
 
@@ -33,18 +30,18 @@ LuckyBlock TACZ is a lightweight lucky-block add-on for TaCZ. It does **not** re
 
 ### Update
 
-Replace the old jar in your `mods` folder with `LuckyBlockTACZ-1.0.4.jar` and restart the game.
+Replace the old jar in your `mods` folder with `LuckyBlockTACZ-1.0.5.jar` and restart the game. On your first launch a default `config/luckyblocktacz-common.toml` is generated.
 
 ### Maven (for developers)
 
 ```gradle
 repositories { maven { url "https://jitpack.io" } }
-dependencies { implementation "com.github.SYSTEM-RAM-OP:LuckyBlockTACZ:1.0.4" }
+dependencies { implementation "com.github.SYSTEM-RAM-OP:LuckyBlockTACZ:1.0.5" }
 ```
 
 ---
 
-## LuckyBlock TACZ 1.0.4（中文）
+## LuckyBlock TACZ 1.0.5（中文）
 
 **Minecraft 1.20.1 · Forge**
 
@@ -52,24 +49,21 @@ dependencies { implementation "com.github.SYSTEM-RAM-OP:LuckyBlockTACZ:1.0.4" }
 
 LuckyBlock TACZ 是一个轻量级的 TaCZ 幸运方块模组，**不依赖原版 Lucky Block 模组**。挖开幸运方块，随机获得一把 TaCZ 枪械，并同时掉落与之口径完全匹配的弹药，开箱即射，不会枪弹错配。
 
-### 1.0.4 修复
+### 1.0.5 新增
 
-- **消耗品、近战、投掷物此前掉出来是空气。** 模组把它们写成了 `lrtactical:ai2`、`lrtactical:karambit` 这类物品名，但绿葡萄战术装备只注册了五个通用物品（`consumable`、`melee`、`throwable`、`flash_shield`、`detonator`），具体是哪个医疗包、哪把刀靠 NBT 区分。所以每一条消耗品/近战/投掷物掉落都是空的。现已改为「通用物品 + `ConsumableId` / `MeleeWeaponId` / `ThrowableId`」的正确写法。
-- **AK-74M 三件套里的配件不存在。** `scope_okp7` 不是有效附件 ID（正确的是 `sight_okp7`），导致这组永远只掉枪和子弹、配件是空的。已修正。
+- **配置文件 + 热重载。** 新增 `config/luckyblocktacz-common.toml`，把所有可调参数都暴露出来：各 tier 掉落概率、各稀有度权重、每次破坏掉几组、散落半径、大奖触发条件与奖励、进度开关、渲染开关。改完文件自动生效；也可以执行 `/lbtacz reload`（OP 等级 2）立刻刷新缓存战利品表，无需重启游戏。
+- **五档稀有度 + 两层加权。** 掉落改为两层抽取——先抽 tier（1–4），再在该 tier 内抽稀有度。默认分布：Common 44.0%、Uncommon 32.1%、Rare 17.0%、Epic 5.9%、Legendary 1.0%，全部可在配置里调整。「枪 + 弹药 + 配件」仍在一个 tick 内一起掉落，绝不枪弹错配。
+- **多方块大奖。** 在很短的时间窗口内、很小的范围内连续挖开多个幸运方块，即可触发大奖，一次掉落 6 组最高 tier 奖励。阈值、范围、时间窗、奖励数量都可在配置里调整。触发时全服公告并播放升级音效。
+- **进度（成就）。** 新增五个进度——幸运方块 TACZ（根）、第一把枪、第一件史诗、大奖、收藏家（累计挖 100 块）——中英双语完整本地化。
+- **方块实体渲染。** 方块现在带一个方块实体，在方块正中央渲染一个缓缓自转、微微上下浮动的幸运方块物品，纯客户端表现，不影响服务器。
 
-### 1.0.4 新增
+### 1.0.5 改进
 
-- **简体中文语言文件。** 中文客户端下方块名与创造模式物品栏显示为「幸运方块 TACZ」。
-- **模组元数据补全。** `mods.toml` 新增 `issueTrackerURL`、128×128 的 `logoFile`、`displayTest="IGNORE_ALL_VERSION"`，与 TaCZ 版本不完全一致时不再显示红色警告。
-- **掉落 ID 校验。** 新增 `validateLootIds` Gradle 任务，把代码里每一处掉落 ID 与自动生成的权威清单（`tools/reference-ids.json`）逐一比对，并挂进 `check`。以后枪、弹、附件、消耗品 ID 写错会**直接构建失败**，而不是静默掉出空气。
+- 空掉落防护：每个加权池都做了优雅回退（归一化后跳到下一个非空稀有度桶），宁可换奖品也绝不掉出空气或抛异常。
 
-### 1.0.4 改进
+### 沿用 1.0.4 的能力
 
-- **地表神殿重做。** 生成的结构从单个悬空方块改为 5×3×5 的石砖平台：四角两根石砖柱、中央幸运方块、旁边一个地牢战利品箱。
-
-### 沿用 1.0.3 的能力
-
-70 把枪械 + 配套弹药、117 种单件附件、50 组「枪 + 弹药 + 附件」三件套、绿葡萄战术装备消耗品、11 把三角洲近战刀、地下矿脉生成（Y 60–120）、约 24 种箱子 10% 概率开出、9 个泥土合成配方。
+70 把枪械 + 配套弹药、117 种单件附件、50 组「枪 + 弹药 + 附件」三件套、绿葡萄战术装备消耗品、11 把三角洲近战刀、地下矿脉生成（Y 60–120）、约 24 种箱子 10% 概率开出、9 个泥土合成配方、简体中文语言文件、重做后的石砖神殿结构。
 
 ### 前置依赖
 
@@ -79,11 +73,11 @@ LuckyBlock TACZ 是一个轻量级的 TaCZ 幸运方块模组，**不依赖原�
 
 ### 更新方法
 
-用本页的 `LuckyBlockTACZ-1.0.4.jar` 替换 `mods` 目录中的旧版本，重启游戏。
+用本页的 `LuckyBlockTACZ-1.0.5.jar` 替换 `mods` 目录中的旧版本，重启游戏。首次启动会自动生成默认的 `config/luckyblocktacz-common.toml`。
 
 ### 开发参考（Maven）
 
 ```gradle
 repositories { maven { url "https://jitpack.io" } }
-dependencies { implementation "com.github.SYSTEM-RAM-OP:LuckyBlockTACZ:1.0.4" }
+dependencies { implementation "com.github.SYSTEM-RAM-OP:LuckyBlockTACZ:1.0.5" }
 ```
