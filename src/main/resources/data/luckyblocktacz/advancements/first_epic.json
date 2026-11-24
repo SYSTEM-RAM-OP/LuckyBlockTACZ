@@ -1,0 +1,28 @@
+{
+  "parent": "luckyblocktacz:first_gun",
+  "display": {
+    "icon": {
+      "item": "luckyblocktacz:lucky_block_tacz"
+    },
+    "title": {
+      "translate": "advancements.luckyblocktacz.first_epic.title"
+    },
+    "description": {
+      "translate": "advancements.luckyblocktacz.first_epic.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "code_trigger": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "code_trigger"
+    ]
+  ]
+}

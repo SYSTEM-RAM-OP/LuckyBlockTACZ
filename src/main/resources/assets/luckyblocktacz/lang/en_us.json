@@ -1,4 +1,15 @@
 {
   "block.luckyblocktacz.lucky_block_tacz": "Lucky Block TACZ",
-  "item_group.luckyblocktacz.lucky_block_tacz_tab": "Lucky Block TACZ Tab"
+  "item_group.luckyblocktacz.lucky_block_tacz_tab": "Lucky Block TACZ Tab",
+  "advancements.luckyblocktacz.root.title": "Lucky Block TACZ",
+  "advancements.luckyblocktacz.root.description": "Crack open a Lucky Block",
+  "advancements.luckyblocktacz.first_gun.title": "Armed and Lucky",
+  "advancements.luckyblocktacz.first_gun.description": "Get a gun out of a Lucky Block",
+  "advancements.luckyblocktacz.first_epic.title": "Epic Fortune",
+  "advancements.luckyblocktacz.first_epic.description": "Obtain an EPIC or better item from a Lucky Block",
+  "advancements.luckyblocktacz.jackpot.title": "Jackpot!",
+  "advancements.luckyblocktacz.jackpot.description": "Trigger a multi-block Lucky Block jackpot",
+  "advancements.luckyblocktacz.collector.title": "Lucky Collector",
+  "advancements.luckyblocktacz.collector.description": "Break 100 Lucky Blocks",
+  "luckyblocktacz.jackpot.announce": "Lucky Block jackpot near %s, %s, %s! Multiple rewards dropped!"
 }

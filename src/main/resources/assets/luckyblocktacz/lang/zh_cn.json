@@ -1,4 +1,15 @@
 {
   "block.luckyblocktacz.lucky_block_tacz": "幸运方块 TACZ",
-  "item_group.luckyblocktacz.lucky_block_tacz_tab": "幸运方块 TACZ"
+  "item_group.luckyblocktacz.lucky_block_tacz_tab": "幸运方块 TACZ",
+  "advancements.luckyblocktacz.root.title": "幸运方块 TACZ",
+  "advancements.luckyblocktacz.root.description": "砸开一个幸运方块",
+  "advancements.luckyblocktacz.first_gun.title": "武装到牙齿",
+  "advancements.luckyblocktacz.first_gun.description": "从幸运方块中获得一把枪械",
+  "advancements.luckyblocktacz.first_epic.title": "史诗好运",
+  "advancements.luckyblocktacz.first_epic.description": "从幸运方块中获得史诗或更高品质的物品",
+  "advancements.luckyblocktacz.jackpot.title": "大奖！",
+  "advancements.luckyblocktacz.jackpot.description": "触发一次多方块幸运方块大奖",
+  "advancements.luckyblocktacz.collector.title": "幸运收藏家",
+  "advancements.luckyblocktacz.collector.description": "累计破坏 100 个幸运方块",
+  "luckyblocktacz.jackpot.announce": "幸运方块大奖！在 %s, %s, %s 附近掉落了多份奖励！"
 }

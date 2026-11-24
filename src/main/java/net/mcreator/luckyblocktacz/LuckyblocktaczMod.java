@@ -48,6 +48,7 @@ public class LuckyblocktaczMod {
 
 	public LuckyblocktaczMod(FMLJavaModLoadingContext context) {
 		// Start of user code block mod constructor
+		net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, net.mcreator.luckyblocktacz.config.LuckyBlockConfig.SPEC, "luckyblocktacz-common.toml");
 		// End of user code block mod constructor
 		MinecraftForge.EVENT_BUS.register(this);
 		IEventBus bus = context.getModEventBus();
@@ -55,6 +56,7 @@ public class LuckyblocktaczMod {
 		LuckyblocktaczModItems.REGISTRY.register(bus);
 		LuckyblocktaczModTabs.REGISTRY.register(bus);
 		GLM.register(bus);
+		net.mcreator.luckyblocktacz.init.LuckyBlockEntityTypes.REGISTRY.register(bus);
 		// Start of user code block mod init
 		// End of user code block mod init
 	}

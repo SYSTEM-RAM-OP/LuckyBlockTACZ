@@ -1,0 +1,28 @@
+{
+  "parent": "luckyblocktacz:jackpot",
+  "display": {
+    "icon": {
+      "item": "luckyblocktacz:lucky_block_tacz"
+    },
+    "title": {
+      "translate": "advancements.luckyblocktacz.collector.title"
+    },
+    "description": {
+      "translate": "advancements.luckyblocktacz.collector.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "code_trigger": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "code_trigger"
+    ]
+  ]
+}

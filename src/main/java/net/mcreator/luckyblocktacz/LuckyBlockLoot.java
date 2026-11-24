@@ -5,12 +5,32 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 
+import javax.annotation.Nullable;
+
+import net.mcreator.luckyblocktacz.advancement.LuckyAdvancements;
+import net.mcreator.luckyblocktacz.config.LuckyBlockConfig;
+import net.mcreator.luckyblocktacz.loot.Rarity;
+
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class LuckyBlockLoot {
+
+    private enum Kind {
+        GUN,
+        GUN_WITH_ATTACHMENT,
+        ATTACHMENT,
+        CONSUMABLE,
+        MELEE,
+        THROWABLE,
+        SHIELD
+    }
 
     private static class LootEntry {
         String baseItem;
@@ -30,6 +50,9 @@ public class LuckyBlockLoot {
         List<LootEntry> entries;
         String requiredMod;
         String secondaryMod;
+        String key;
+        Kind kind;
+        Rarity rarity;
 
         LootSet(List<LootEntry> entries, String requiredMod) {
             this(entries, requiredMod, null);
@@ -41,6 +64,12 @@ public class LuckyBlockLoot {
             this.secondaryMod = secondaryMod;
         }
 
+        LootSet tag(String key, Kind kind) {
+            this.key = key;
+            this.kind = kind;
+            return this;
+        }
+
         boolean isAvailable() {
             if (requiredMod != null && !net.minecraftforge.fml.ModList.get().isLoaded(requiredMod)) return false;
             if (secondaryMod != null && !net.minecraftforge.fml.ModList.get().isLoaded(secondaryMod)) return false;
@@ -48,43 +77,73 @@ public class LuckyBlockLoot {
         }
     }
 
+    private static final class Snapshot {
+        final List<LootSet> all;
+        final Map<Rarity, List<LootSet>> byRarity;
+        final int[] tierChances;
+        final int[][] tierWeights;
+
+        Snapshot(List<LootSet> all, Map<Rarity, List<LootSet>> byRarity, int[] tierChances, int[][] tierWeights) {
+            this.all = all;
+            this.byRarity = byRarity;
+            this.tierChances = tierChances;
+            this.tierWeights = tierWeights;
+        }
+
+        List<LootSet> bucket(Rarity rarity) {
+            List<LootSet> list = byRarity.get(rarity);
+            return list != null ? list : List.of();
+        }
+    }
+
+    private static final int[] DEFAULT_TIER_CHANCES = {45, 30, 18, 7};
+
+    private static final int[][] DEFAULT_TIER_WEIGHTS = {
+        {100, 40, 8, 0, 0},
+        {60, 70, 25, 5, 0},
+        {20, 50, 60, 20, 3},
+        {0, 15, 50, 45, 12}
+    };
+
+    private static volatile Snapshot CACHE;
+
     private static final List<LootSet> LOOT_TABLE = new ArrayList<>();
 
     private static LootSet gun(String gunId, String ammoId) {
         return new LootSet(List.of(
             new LootEntry("tacz:modern_kinetic_gun", "{\"GunId\":\"tacz:" + gunId + "\"}", 1, null),
             new LootEntry("tacz:ammo", "{\"AmmoId\":\"tacz:" + ammoId + "\"}", 60, null)
-        ), null);
+        ), null).tag("gun:" + gunId, Kind.GUN);
     }
 
     private static LootSet lrMelee(String id) {
         return new LootSet(List.of(
             new LootEntry("lrtactical:melee", "{\"MeleeWeaponId\":\"lrtactical:" + id + "\"}", 1, "lrtactical")
-        ), "lrtactical");
+        ), "lrtactical").tag("melee:" + id, Kind.MELEE);
     }
 
     private static LootSet flashShield() {
         return new LootSet(List.of(
             new LootEntry("lrtactical:flash_shield", null, 1, "lrtactical")
-        ), "lrtactical");
+        ), "lrtactical").tag("shield:flash", Kind.SHIELD);
     }
 
     private static LootSet deltaMelee(String id) {
         return new LootSet(List.of(
             new LootEntry("lrtactical:melee", "{\"MeleeWeaponId\":\"delta_wt:" + id + "\"}", 1, "lrtactical")
-        ), "lrtactical", "delta_wt");
+        ), "lrtactical", "delta_wt").tag("delta:" + id, Kind.MELEE);
     }
 
     private static LootSet throwable(String id) {
         return new LootSet(List.of(
             new LootEntry("lrtactical:throwable", "{\"ThrowableId\":\"lrtactical:" + id + "\"}", 1, "lrtactical")
-        ), "lrtactical");
+        ), "lrtactical").tag("throwable:" + id, Kind.THROWABLE);
     }
 
     private static LootSet attachment(String id) {
         return new LootSet(List.of(
             new LootEntry("tacz:attachment", "{\"AttachmentId\":\"tacz:" + id + "\"}", 1, null)
-        ), null);
+        ), null).tag("attachment:" + id, Kind.ATTACHMENT);
     }
 
     private static LootSet gunWithAttachment(String gunId, String ammoId, String attachmentId, int ammoCount) {
@@ -92,13 +151,13 @@ public class LuckyBlockLoot {
             new LootEntry("tacz:modern_kinetic_gun", "{\"GunId\":\"tacz:" + gunId + "\"}", 1, null),
             new LootEntry("tacz:ammo", "{\"AmmoId\":\"tacz:" + ammoId + "\"}", ammoCount, null),
             new LootEntry("tacz:attachment", "{\"AttachmentId\":\"tacz:" + attachmentId + "\"}", 1, null)
-        ), null);
+        ), null).tag("gunatt:" + gunId, Kind.GUN_WITH_ATTACHMENT);
     }
 
     private static LootSet consumable(String id, int count) {
         return new LootSet(List.of(
             new LootEntry("lrtactical:consumable", "{\"ConsumableId\":\"lrtactical:" + id + "\"}", count, "lrtactical")
-        ), "lrtactical");
+        ), "lrtactical").tag("consumable:" + id, Kind.CONSUMABLE);
     }
 
     static {
@@ -375,27 +434,253 @@ public class LuckyBlockLoot {
         LOOT_TABLE.add(flashShield());
     }
 
-    public static void dropRandomGunAndAmmo(Level level, BlockPos pos) {
-        if (level.isClientSide()) return;
+    public static synchronized void rebuildCache() {
+        CACHE = buildSnapshot();
+    }
 
-        List<LootSet> validSets = new ArrayList<>();
-        for (LootSet set : LOOT_TABLE) {
-            if (set.isAvailable()) {
-                validSets.add(set);
-            }
+    public static int cachedSetCount() {
+        return snapshot().all.size();
+    }
+
+    private static Snapshot snapshot() {
+        Snapshot current = CACHE;
+        if (current == null) {
+            rebuildCache();
+            current = CACHE;
         }
+        return current;
+    }
 
-        if (validSets.isEmpty()) return;
+    private static Snapshot buildSnapshot() {
+        Map<Rarity, List<LootSet>> buckets = new EnumMap<>(Rarity.class);
+        for (Rarity rarity : Rarity.ORDERED) {
+            buckets.put(rarity, new ArrayList<>());
+        }
+        List<LootSet> available = new ArrayList<>();
+        for (LootSet set : LOOT_TABLE) {
+            if (!set.isAvailable()) continue;
+            Rarity rarity = classify(set);
+            set.rarity = rarity;
+            available.add(set);
+            buckets.get(rarity).add(set);
+        }
+        Map<Rarity, List<LootSet>> frozen = new EnumMap<>(Rarity.class);
+        for (Rarity rarity : Rarity.ORDERED) {
+            frozen.put(rarity, List.copyOf(buckets.get(rarity)));
+        }
+        return new Snapshot(List.copyOf(available), frozen, readTierChances(), readTierWeights());
+    }
 
-        RandomSource random = level.random;
-        LootSet selected = validSets.get(random.nextInt(validSets.size()));
-
-        for (LootEntry entry : selected.entries) {
-            spawnItem(level, pos, entry.baseItem, entry.nbtString, entry.count);
+    private static Rarity classify(LootSet set) {
+        Rarity override = overrideFor(set);
+        if (override != null) return override;
+        Kind kind = set.kind;
+        if (kind == null) return Rarity.COMMON;
+        switch (kind) {
+            case GUN:
+                return fallback(LuckyBlockConfig.enumOf(LuckyBlockConfig.GUN_RARITY));
+            case GUN_WITH_ATTACHMENT:
+                return fallback(LuckyBlockConfig.enumOf(LuckyBlockConfig.GUN_WITH_ATTACHMENT_RARITY));
+            case ATTACHMENT:
+                return fallback(LuckyBlockConfig.enumOf(LuckyBlockConfig.ATTACHMENT_RARITY));
+            case CONSUMABLE:
+                return fallback(LuckyBlockConfig.enumOf(LuckyBlockConfig.CONSUMABLE_RARITY));
+            case MELEE:
+                return fallback(LuckyBlockConfig.enumOf(LuckyBlockConfig.MELEE_RARITY));
+            case THROWABLE:
+                return fallback(LuckyBlockConfig.enumOf(LuckyBlockConfig.THROWABLE_RARITY));
+            case SHIELD:
+            default:
+                return fallback(LuckyBlockConfig.enumOf(LuckyBlockConfig.SHIELD_RARITY));
         }
     }
 
+    private static Rarity fallback(Rarity rarity) {
+        return rarity != null ? rarity : Rarity.COMMON;
+    }
+
+    private static Rarity overrideFor(LootSet set) {
+        if (set.key == null) return null;
+        List<String> overrides = LuckyBlockConfig.listOf(LuckyBlockConfig.ID_OVERRIDES);
+        for (String line : overrides) {
+            if (line == null) continue;
+            int split = line.indexOf('=');
+            if (split <= 0 || split >= line.length() - 1) continue;
+            String rawKey = line.substring(0, split).trim();
+            if (!matchesKey(rawKey, set.key)) continue;
+            String name = line.substring(split + 1).trim().toUpperCase(Locale.ROOT);
+            try {
+                Rarity parsed = Rarity.valueOf(name);
+                if (parsed != null) return parsed;
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        return null;
+    }
+
+    private static boolean matchesKey(String overrideKey, String setKey) {
+        if (overrideKey.equals(setKey)) return true;
+        String bare = overrideKey;
+        if (bare.startsWith("tacz:")) bare = bare.substring(5);
+        else if (bare.startsWith("minecraft:")) bare = bare.substring(10);
+        else if (bare.startsWith("lrtactical:")) bare = bare.substring(11);
+        if (bare.indexOf(':') >= 0) return false;
+        int colon = setKey.indexOf(':');
+        String id = colon >= 0 ? setKey.substring(colon + 1) : setKey;
+        return bare.equals(id);
+    }
+
+    private static int[] readTierChances() {
+        int[] result = DEFAULT_TIER_CHANCES.clone();
+        List<Integer> raw = LuckyBlockConfig.listOf(LuckyBlockConfig.TIER_CHANCES);
+        if (raw.size() != result.length) return DEFAULT_TIER_CHANCES.clone();
+        int sum = 0;
+        for (int i = 0; i < result.length; i++) {
+            Integer value = raw.get(i);
+            if (value == null || value < 0) return DEFAULT_TIER_CHANCES.clone();
+            result[i] = value;
+            sum += value;
+        }
+        return sum > 0 ? result : DEFAULT_TIER_CHANCES.clone();
+    }
+
+    private static int[][] readTierWeights() {
+        int[][] result = new int[DEFAULT_TIER_WEIGHTS.length][];
+        result[0] = readWeights(LuckyBlockConfig.listOf(LuckyBlockConfig.TIER1_WEIGHTS), DEFAULT_TIER_WEIGHTS[0]);
+        result[1] = readWeights(LuckyBlockConfig.listOf(LuckyBlockConfig.TIER2_WEIGHTS), DEFAULT_TIER_WEIGHTS[1]);
+        result[2] = readWeights(LuckyBlockConfig.listOf(LuckyBlockConfig.TIER3_WEIGHTS), DEFAULT_TIER_WEIGHTS[2]);
+        result[3] = readWeights(LuckyBlockConfig.listOf(LuckyBlockConfig.TIER4_WEIGHTS), DEFAULT_TIER_WEIGHTS[3]);
+        return result;
+    }
+
+    private static int[] readWeights(List<Integer> raw, int[] defaults) {
+        int[] result = defaults.clone();
+        if (raw.size() != result.length) return defaults.clone();
+        for (int i = 0; i < result.length; i++) {
+            Integer value = raw.get(i);
+            if (value == null || value < 0) return defaults.clone();
+            result[i] = value;
+        }
+        return result;
+    }
+
+    private static int pickTier(Snapshot snapshot, RandomSource random) {
+        int[] chances = snapshot.tierChances;
+        int total = 0;
+        for (int chance : chances) total += chance;
+        if (total <= 0) return random.nextInt(chances.length);
+        int roll = random.nextInt(total);
+        for (int i = 0; i < chances.length; i++) {
+            if (roll < chances[i]) return i;
+            roll -= chances[i];
+        }
+        return 0;
+    }
+
+    private static LootSet pick(Snapshot snapshot, RandomSource random, int forcedTier) {
+        if (snapshot.all.isEmpty()) return null;
+        int tier = forcedTier >= 0 && forcedTier < snapshot.tierWeights.length ? forcedTier : pickTier(snapshot, random);
+        int[] weights = snapshot.tierWeights[tier];
+        int availableWeight = 0;
+        for (int i = 0; i < weights.length; i++) {
+            if (weights[i] > 0 && !snapshot.bucket(Rarity.ORDERED[i]).isEmpty()) availableWeight += weights[i];
+        }
+        if (availableWeight > 0) {
+            int roll = random.nextInt(availableWeight);
+            for (int i = 0; i < weights.length; i++) {
+                List<LootSet> bucket = snapshot.bucket(Rarity.ORDERED[i]);
+                if (weights[i] <= 0 || bucket.isEmpty()) continue;
+                if (roll < weights[i]) return bucket.get(random.nextInt(bucket.size()));
+                roll -= weights[i];
+            }
+        }
+        for (Rarity rarity : Rarity.ORDERED) {
+            List<LootSet> bucket = snapshot.bucket(rarity);
+            if (!bucket.isEmpty()) return bucket.get(random.nextInt(bucket.size()));
+        }
+        return snapshot.all.get(random.nextInt(snapshot.all.size()));
+    }
+
+    public static void dropRandomGunAndAmmo(Level level, BlockPos pos) {
+        dropRandomGunAndAmmo(level, pos, null);
+    }
+
+    public static void dropRandomGunAndAmmo(Level level, BlockPos pos, @Nullable ServerPlayer player) {
+        if (level.isClientSide()) return;
+        if (!LuckyBlockConfig.boolOf(LuckyBlockConfig.DROP_ENABLED)) return;
+
+        Snapshot snapshot = snapshot();
+        if (snapshot.all.isEmpty()) return;
+
+        RandomSource random = level.random;
+        int wanted = Math.max(1, LuckyBlockConfig.intOf(LuckyBlockConfig.DROP_SETS_PER_BREAK));
+        double scatter = Math.max(0.0D, LuckyBlockConfig.doubleOf(LuckyBlockConfig.SCATTER_RADIUS));
+
+        List<LootSet> chosen = new ArrayList<>();
+        int attempts = 0;
+        int maxAttempts = Math.max(8, wanted * 8);
+        while (chosen.size() < wanted && attempts < maxAttempts) {
+            attempts++;
+            LootSet candidate = pick(snapshot, random, -1);
+            if (candidate == null) break;
+            boolean duplicate = false;
+            for (LootSet picked : chosen) {
+                if (picked == candidate) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate) chosen.add(candidate);
+            if (chosen.size() >= snapshot.all.size()) break;
+        }
+
+        for (LootSet set : chosen) {
+            for (LootEntry entry : set.entries) {
+                spawnItem(level, pos, entry, scatter);
+            }
+        }
+        if (player != null) {
+            awardDropAdvancements(player, chosen);
+        }
+    }
+
+    public static void dropJackpot(Level level, BlockPos pos) {
+        if (level.isClientSide()) return;
+        Snapshot snapshot = snapshot();
+        if (snapshot.all.isEmpty()) return;
+        int sets = Math.max(1, LuckyBlockConfig.intOf(LuckyBlockConfig.JACKPOT_REWARD_SETS));
+        int tier = Math.max(1, LuckyBlockConfig.intOf(LuckyBlockConfig.JACKPOT_REWARD_TIER)) - 1;
+        double scatter = Math.max(0.5D, LuckyBlockConfig.doubleOf(LuckyBlockConfig.SCATTER_RADIUS));
+        for (int i = 0; i < sets; i++) {
+            LootSet set = pick(snapshot, level.random, tier);
+            if (set == null) break;
+            for (LootEntry entry : set.entries) {
+                spawnItem(level, pos, entry, scatter);
+            }
+        }
+    }
+
+    private static void awardDropAdvancements(ServerPlayer player, List<LootSet> chosen) {
+        boolean gun = false;
+        boolean epic = false;
+        for (LootSet set : chosen) {
+            if (set.kind == Kind.GUN || set.kind == Kind.GUN_WITH_ATTACHMENT) gun = true;
+            Rarity rarity = set.rarity;
+            if (rarity != null && rarity.index() >= Rarity.EPIC.index()) epic = true;
+        }
+        if (gun) LuckyAdvancements.award(player, "first_gun");
+        if (epic) LuckyAdvancements.award(player, "first_epic");
+    }
+
+    private static void spawnItem(Level level, BlockPos pos, LootEntry entry, double scatter) {
+        spawnItem(level, pos, entry.baseItem, entry.nbtString, entry.count, scatter);
+    }
+
     private static void spawnItem(Level level, BlockPos pos, String itemId, String nbtString, int count) {
+        spawnItem(level, pos, itemId, nbtString, count, 0.0D);
+    }
+
+    private static void spawnItem(Level level, BlockPos pos, String itemId, String nbtString, int count, double scatter) {
         ItemStack stack = new ItemStack(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(net.minecraft.resources.ResourceLocation.tryParse(itemId)));
         stack.setCount(count);
         if (nbtString != null && !nbtString.isEmpty()) {
@@ -406,7 +691,13 @@ public class LuckyBlockLoot {
                 e.printStackTrace();
             }
         }
-        ItemEntity itemEntity = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+        double offsetX = 0.0D;
+        double offsetZ = 0.0D;
+        if (scatter > 0.0D) {
+            offsetX = (level.random.nextDouble() * 2.0D - 1.0D) * scatter;
+            offsetZ = (level.random.nextDouble() * 2.0D - 1.0D) * scatter;
+        }
+        ItemEntity itemEntity = new ItemEntity(level, pos.getX() + 0.5D + offsetX, pos.getY() + 0.5D, pos.getZ() + 0.5D + offsetZ, stack);
         level.addFreshEntity(itemEntity);
     }
 }

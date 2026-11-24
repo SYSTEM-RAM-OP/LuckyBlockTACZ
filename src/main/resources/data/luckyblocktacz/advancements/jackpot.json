@@ -1,0 +1,28 @@
+{
+  "parent": "luckyblocktacz:first_epic",
+  "display": {
+    "icon": {
+      "item": "luckyblocktacz:lucky_block_tacz"
+    },
+    "title": {
+      "translate": "advancements.luckyblocktacz.jackpot.title"
+    },
+    "description": {
+      "translate": "advancements.luckyblocktacz.jackpot.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "code_trigger": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "code_trigger"
+    ]
+  ]
+}
